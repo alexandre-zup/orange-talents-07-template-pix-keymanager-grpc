@@ -7,14 +7,32 @@ option objc_class_prefix = "HLW";
 
 package dev.alexandrevieira;
 
-service PixKeyManagerGrpcService {
-  rpc send (PixKeyManagerGrpcRequest) returns (PixKeyManagerGrpcReply) {}
+service PixKeyManagerService {
+    rpc registra(NovaChavePixRequest) returns (NovaChavePixResponse) {}
 }
 
-message PixKeyManagerGrpcRequest {
-  string name = 1;
+enum TipoDaChave {
+    CHAVE_DESCONHECIDA = 0;
+    CPF = 1;
+    CELULAR = 2;
+    EMAIL = 3;
+    ALEATORIA = 4;
 }
 
-message PixKeyManagerGrpcReply {
-  string message = 1;
+enum TipoDaConta {
+    CONTA_DESCONHECIDA = 0;
+    CONTA_CORRENTE = 1;
+    CONTA_POUPANCA = 2;
+}
+
+message NovaChavePixRequest {
+    string cliente_id = 1;
+    TipoDaChave tipo_chave = 2;
+    string valor_chave = 3;
+    TipoDaConta tipo_conta = 4;
+}
+
+message NovaChavePixResponse {
+    string cliente_id = 1;
+    string chave_pix_id = 2;
 }

@@ -4,7 +4,17 @@ services:
     image: "public.ecr.aws/d8b2x5c9/orange-stack-sat-bcb-pix"
     ports:
       - 8082:8082
+
   erp-itau:
     image: "public.ecr.aws/d8b2x5c9/orange-stack-sat-itau-erp"
     ports:
       - 9091:9091
+
+  postgres:
+    image: "postgres:9.6.23"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: alex
+      POSTGRES_PASSWORD: alex
+      POSTGRES_DB: pix-grpc
