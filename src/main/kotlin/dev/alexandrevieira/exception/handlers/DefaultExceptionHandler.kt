@@ -1,5 +1,7 @@
 package dev.alexandrevieira.exception.handlers
 
+import dev.alexandrevieira.exception.customexceptions.InternalServerError
+import dev.alexandrevieira.exception.customexceptions.ServiceUnavailableException
 import io.grpc.Status
 
 /**
@@ -11,6 +13,8 @@ class DefaultExceptionHandler : ExceptionHandler<Exception> {
         val status = when (e) {
             is IllegalArgumentException -> Status.INVALID_ARGUMENT.withDescription(e.message)
             is IllegalStateException -> Status.FAILED_PRECONDITION.withDescription(e.message)
+            is ServiceUnavailableException -> Status.UNAVAILABLE.withDescription(e.message)
+            is InternalServerError -> Status.INTERNAL.withDescription(e.message)
             else -> Status.UNKNOWN
         }
         return ExceptionHandler.StatusWithDetails(status.withCause(e))

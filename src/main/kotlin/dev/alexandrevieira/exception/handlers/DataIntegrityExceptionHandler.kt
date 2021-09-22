@@ -16,27 +16,27 @@ import javax.persistence.PersistenceException
 class DataIntegrityExceptionHandler(@Inject var messageSource: MessageSource) :
     ExceptionHandler<PersistenceException> {
 
-    override fun handle(persistenceException: PersistenceException): ExceptionHandler.StatusWithDetails {
-        val e = persistenceException.cause
+    override fun handle(e: PersistenceException): ExceptionHandler.StatusWithDetails {
+        val cause = e.cause
 
-        if (e is ConstraintViolationException) {
+        if (cause is ConstraintViolationException) {
 
-            val constraintName = e.constraintName
+            val constraintName = cause.constraintName
             if (constraintName.isNullOrBlank()) {
-                return internalServerError(e)
+                return internalServerError(cause)
             }
 
             val message = messageSource.getMessage("data.integrity.error.$constraintName", MessageContext.DEFAULT)
             return message
-                .map { alreadyExistsError(it, e) } // TODO: dealing with many types of constraint errors
-                .orElse(internalServerError(e))
+                .map { alreadyExistsError(it, cause) } // TODO: dealing with many types of constraint errors
+                .orElse(internalServerError(cause))
         } else {
-            val status = when (e) {
-                is IllegalArgumentException -> Status.INVALID_ARGUMENT.withDescription(e.message)
-                is IllegalStateException -> Status.FAILED_PRECONDITION.withDescription(e.message)
+            val status = when (cause) {
+                is IllegalArgumentException -> Status.INVALID_ARGUMENT.withDescription(cause.message)
+                is IllegalStateException -> Status.FAILED_PRECONDITION.withDescription(cause.message)
                 else -> Status.UNKNOWN
             }
-            return ExceptionHandler.StatusWithDetails(status.withCause(e))
+            return ExceptionHandler.StatusWithDetails(status.withCause(cause))
         }
 
     }
