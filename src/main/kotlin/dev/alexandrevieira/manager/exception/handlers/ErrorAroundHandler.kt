@@ -1,4 +1,4 @@
-package dev.alexandrevieira.manager.exception.alternative
+package dev.alexandrevieira.manager.exception.handlers
 
 import io.micronaut.aop.Around
 import kotlin.annotation.AnnotationTarget.*

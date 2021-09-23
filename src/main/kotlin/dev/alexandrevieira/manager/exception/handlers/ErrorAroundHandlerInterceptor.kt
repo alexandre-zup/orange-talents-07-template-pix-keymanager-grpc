@@ -1,9 +1,6 @@
-package dev.alexandrevieira.manager.exception.alternative
+package dev.alexandrevieira.manager.exception.handlers
 
-import dev.alexandrevieira.manager.exception.customexceptions.ChavePixExistenteException
-import dev.alexandrevieira.manager.exception.customexceptions.ChavePixNaoEncontradaException
-import dev.alexandrevieira.manager.exception.customexceptions.InternalServerError
-import dev.alexandrevieira.manager.exception.customexceptions.ServiceUnavailableException
+import dev.alexandrevieira.manager.exception.customexceptions.*
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.aop.InterceptorBean
@@ -40,6 +37,7 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
 
     private fun fromException(ex: Exception): Status {
         return when (ex) {
+            is NaoAutorizadoException -> status(Status.PERMISSION_DENIED, ex)
             is ServiceUnavailableException -> status(Status.UNAVAILABLE, ex)
             is IllegalStateException -> status(Status.FAILED_PRECONDITION, ex)
             is ConstraintViolationException -> status(Status.INVALID_ARGUMENT, ex)

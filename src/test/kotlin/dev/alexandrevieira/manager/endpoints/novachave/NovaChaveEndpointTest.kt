@@ -21,8 +21,11 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import java.util.*
 
@@ -45,7 +48,7 @@ internal class NovaChaveEndpointTest {
     lateinit var itauClient: ErpItauClient
 
     @field:Inject
-    lateinit var keyManagerClient: PixKeyManagerServiceGrpc.PixKeyManagerServiceBlockingStub
+    lateinit var keyManagerClient: PixKeyManagerRegistraServiceGrpc.PixKeyManagerRegistraServiceBlockingStub
 
 
     @AfterEach
@@ -249,8 +252,9 @@ internal class NovaChaveEndpointTest {
     @Factory
     class Clients {
         @Singleton
-        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): PixKeyManagerServiceGrpc.PixKeyManagerServiceBlockingStub? {
-            return PixKeyManagerServiceGrpc.newBlockingStub(channel)
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel):
+                PixKeyManagerRegistraServiceGrpc.PixKeyManagerRegistraServiceBlockingStub? {
+            return PixKeyManagerRegistraServiceGrpc.newBlockingStub(channel)
         }
     }
 

@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
     flags = [Pattern.Flag.CASE_INSENSITIVE]
 )
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 annotation class ValidUUID(
     val message: String = "Deve estar em formato UUID",
     val groups: Array<KClass<Any>> = [],

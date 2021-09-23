@@ -1,8 +1,8 @@
 package dev.alexandrevieira.manager.endpoints.novachave
 
-import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauClient
 import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
 import dev.alexandrevieira.manager.apiclients.erpitau.ConverterService
+import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauClient
 import dev.alexandrevieira.manager.data.model.ChavePix
 import dev.alexandrevieira.manager.data.repositories.ChavePixRepository
 import dev.alexandrevieira.manager.exception.customexceptions.ChavePixExistenteException
@@ -23,12 +23,15 @@ import javax.validation.Valid
 @Singleton
 class NovaChavePixService {
     private val log = LoggerFactory.getLogger(this.javaClass)
+
     @Inject
-    lateinit var repository: ChavePixRepository
+    private lateinit var repository: ChavePixRepository
+
     @Inject
-    lateinit var itauClient: ErpItauClient
+    private lateinit var itauClient: ErpItauClient
+
     @Inject
-    lateinit var converterService: ConverterService
+    private lateinit var converterService: ConverterService
 
     @Transactional
     fun registra(@Valid novaChave: NovaChavePixValidated): ChavePix {

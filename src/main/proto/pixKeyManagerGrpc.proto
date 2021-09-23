@@ -7,8 +7,12 @@ option objc_class_prefix = "HLW";
 
 package dev.alexandrevieira;
 
-service PixKeyManagerService {
+service PixKeyManagerRegistravaService {
     rpc registra(NovaChavePixRequest) returns (NovaChavePixResponse) {}
+}
+
+service PixKeyManagerRemoveService {
+    rpc remove(RemoveChaveRequest) returns (RemoveChaveResponse) {}
 }
 
 enum TipoDaChave {
@@ -33,6 +37,17 @@ message NovaChavePixRequest {
 }
 
 message NovaChavePixResponse {
+    string cliente_id = 1;
+    string chave_pix_id = 2;
+}
+
+
+message RemoveChaveRequest {
+    string cliente_id = 1;
+    string chave_pix_id = 2;
+}
+
+message RemoveChaveResponse {
     string cliente_id = 1;
     string chave_pix_id = 2;
 }

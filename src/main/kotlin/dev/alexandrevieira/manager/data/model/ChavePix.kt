@@ -37,4 +37,8 @@ class ChavePix(
     fun obterTitularId(): UUID {
         return conta.obterTitularId()
     }
+
+    fun pertenceAoCliente(clienteId: UUID): Boolean {
+        return conta.obterTitularId() == clienteId
+    }
 }
