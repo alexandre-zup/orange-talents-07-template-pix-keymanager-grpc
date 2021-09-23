@@ -1,5 +1,5 @@
 applicationType: grpc
-defaultPackage: dev.alexandrevieira
+defaultPackage: dev.alexandrevieira.manager
 testFramework: junit
 sourceLanguage: kotlin
 buildTool: gradle
