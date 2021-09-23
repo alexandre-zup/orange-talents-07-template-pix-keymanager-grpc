@@ -1,7 +1,7 @@
 package dev.alexandrevieira.manager.endpoints.novachave
 
-import dev.alexandrevieira.*
 import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
+import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauClient
 import dev.alexandrevieira.manager.data.model.enums.TipoConta
 import dev.alexandrevieira.manager.data.repositories.ChavePixRepository
 import dev.alexandrevieira.manager.data.repositories.ContaRepository

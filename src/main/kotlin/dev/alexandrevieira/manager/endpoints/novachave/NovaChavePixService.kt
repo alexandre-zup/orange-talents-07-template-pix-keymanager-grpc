@@ -1,6 +1,6 @@
 package dev.alexandrevieira.manager.endpoints.novachave
 
-import dev.alexandrevieira.ErpItauClient
+import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauClient
 import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
 import dev.alexandrevieira.manager.apiclients.erpitau.ConverterService
 import dev.alexandrevieira.manager.data.model.ChavePix

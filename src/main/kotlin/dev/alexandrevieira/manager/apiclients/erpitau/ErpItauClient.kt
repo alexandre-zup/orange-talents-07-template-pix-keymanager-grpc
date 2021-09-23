@@ -1,6 +1,5 @@
-package dev.alexandrevieira
+package dev.alexandrevieira.manager.apiclients.erpitau
 
-import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
 import dev.alexandrevieira.manager.data.model.enums.TipoConta
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Get

@@ -54,7 +54,7 @@ dependencies {
 
 
 application {
-    mainClass.set("dev.alexandrevieira.ApplicationKt")
+    mainClass.set("dev.alexandrevieira.manager.ApplicationKt")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("11")
