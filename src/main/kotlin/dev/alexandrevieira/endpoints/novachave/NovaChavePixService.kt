@@ -12,6 +12,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus.NOT_FOUND
 import io.micronaut.http.HttpStatus.OK
 import io.micronaut.http.client.exceptions.HttpClientException
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import io.micronaut.validation.validator.Validator
 import jakarta.inject.Inject
@@ -24,16 +25,10 @@ import javax.validation.Valid
 @Singleton
 class NovaChavePixService {
     private val log = LoggerFactory.getLogger(this.javaClass)
-
-    @Inject
-    lateinit var validator: Validator
-
     @Inject
     lateinit var repository: ChavePixRepository
-
     @Inject
     lateinit var itauClient: ErpItauClient
-
     @Inject
     lateinit var converterService: ConverterService
 

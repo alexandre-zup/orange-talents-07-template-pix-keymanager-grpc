@@ -37,9 +37,4 @@ class ChavePix(
     fun obterTitularId(): UUID {
         return conta.obterTitularId()
     }
-
-    override fun toString(): String {
-        return "ChavePix(conta=$conta, chave='$chave', tipo=$tipo, id=$id, criadaEm=$criadaEm)"
-    }
-
 }

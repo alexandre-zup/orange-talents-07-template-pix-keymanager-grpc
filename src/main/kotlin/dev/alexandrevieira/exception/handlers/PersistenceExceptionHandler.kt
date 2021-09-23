@@ -13,7 +13,7 @@ import javax.persistence.PersistenceException
  * The idea of this handler is to deal with database constraints errors, like unique or FK constraints for example
  */
 @Singleton
-class DataIntegrityExceptionHandler(@Inject var messageSource: MessageSource) :
+class PersistenceExceptionHandler(@Inject var messageSource: MessageSource) :
     ExceptionHandler<PersistenceException> {
 
     override fun handle(e: PersistenceException): ExceptionHandler.StatusWithDetails {

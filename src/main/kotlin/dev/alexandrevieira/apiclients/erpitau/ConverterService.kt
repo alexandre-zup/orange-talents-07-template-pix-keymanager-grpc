@@ -14,9 +14,6 @@ import jakarta.inject.Singleton
 @Singleton
 class ConverterService {
     @Inject
-    lateinit var chavePixRepository: ChavePixRepository
-
-    @Inject
     lateinit var titularRepository: TitularRepository
 
     @Inject

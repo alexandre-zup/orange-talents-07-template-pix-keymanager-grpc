@@ -22,8 +22,4 @@ class Conta(
     fun obterTitularId(): UUID {
         return titular.id
     }
-
-    override fun toString(): String {
-        return "ContaAssociada(agencia='$agencia', numero='$numero', tipo=$tipo, titular=$titular, instituicao=$instituicao, id=$id)"
-    }
 }

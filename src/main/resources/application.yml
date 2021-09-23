@@ -9,14 +9,6 @@ grpc:
     max-inbound-message-size: 1024
 
 datasources:
-#  default:
-#    url: jdbc:h2:mem:devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-#    driverClassName: org.h2.Driver
-#    username: sa
-#    password: ''
-#    schema-generate: CREATE_DROP
-#    dialect: H2
-
   default:
     url: ${DB_URL:`jdbc:postgresql://localhost:5432/pix-grpc`}
     driverClassName: ${DB_DRIVER:org.postgresql.Driver}
@@ -24,8 +16,6 @@ datasources:
     password: ${DB_PASSWORD:alex}
     dialect: ${DB_DIALECT:POSTGRES}
     schema-generate: CREATE_DROP
-#jpa.default.properties.hibernate.hbm2ddl.auto: create-drop
-
 
 jpa:
   default:
