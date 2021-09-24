@@ -22,9 +22,13 @@ class RemoveChaveService {
     fun remove(@ValidUUID chaveId: String, @ValidUUID clienteId: String) {
         log.info("remove chamado para chaveId $chaveId e clienteId $clienteId")
         val optionalChave: Optional<ChavePix> = repository.findById(UUID.fromString(chaveId))
-        if (optionalChave.isEmpty) throw ChavePixNaoEncontradaException("Chave $chaveId nao encontrada")
+        if (optionalChave.isEmpty)
+            throw ChavePixNaoEncontradaException("Chave $chaveId nao encontrada")
+
         val chave: ChavePix = optionalChave.get()
-        if (!chave.pertenceAoCliente(UUID.fromString(clienteId))) throw NaoAutorizadoException("Nao autorizado")
+        if (!chave.pertenceAoCliente(UUID.fromString(clienteId)))
+            throw NaoAutorizadoException("Nao autorizado")
+        
         repository.delete(chave)
     }
 }

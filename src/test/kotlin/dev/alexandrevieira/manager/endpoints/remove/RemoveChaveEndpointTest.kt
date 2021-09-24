@@ -1,0 +1,132 @@
+package dev.alexandrevieira.manager.endpoints.remove
+
+import dev.alexandrevieira.manager.data.model.ChavePix
+import dev.alexandrevieira.manager.data.model.Conta
+import dev.alexandrevieira.manager.data.model.Instituicao
+import dev.alexandrevieira.manager.data.model.Titular
+import dev.alexandrevieira.manager.data.model.enums.TipoChave
+import dev.alexandrevieira.manager.data.model.enums.TipoConta
+import dev.alexandrevieira.manager.data.repositories.ChavePixRepository
+import dev.alexandrevieira.manager.data.repositories.ContaRepository
+import dev.alexandrevieira.manager.data.repositories.InstituicaoRepository
+import dev.alexandrevieira.manager.data.repositories.TitularRepository
+import dev.alexandrevieira.stubs.PixKeyManagerRemoveServiceGrpc
+import dev.alexandrevieira.stubs.RemoveChaveRequest
+import io.grpc.ManagedChannel
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
+import io.micronaut.context.annotation.Factory
+import io.micronaut.grpc.annotation.GrpcChannel
+import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.util.*
+
+@MicronautTest(transactional = false)
+internal class RemoveChaveEndpointTest {
+    @field:Inject
+    private lateinit var repository: ChavePixRepository
+
+    @field:Inject
+    private lateinit var instituicaoRepository: InstituicaoRepository
+
+    @field:Inject
+    private lateinit var contaRepository: ContaRepository
+
+    @field:Inject
+    private lateinit var titularRepository: TitularRepository
+
+    @field:Inject
+    private lateinit var keyManager: PixKeyManagerRemoveServiceGrpc.PixKeyManagerRemoveServiceBlockingStub
+
+    @BeforeEach
+    fun setUp() {
+        repository.deleteAll()
+        contaRepository.deleteAll()
+        titularRepository.deleteAll()
+        instituicaoRepository.deleteAll()
+    }
+
+    @Test
+    @DisplayName("Deve remover uma chave pix")
+    fun deveRemoverUmaChavePix() {
+        assertEquals(0, repository.count())
+        val chave = repository.save(chaveFactory())
+        assertEquals(1, repository.count())
+        keyManager.remove(
+            RemoveChaveRequest.newBuilder()
+                .setChavePixId(chave.id.toString())
+                .setClienteId(chave.obterTitularId().toString())
+                .build()
+        )
+        assertEquals(0, repository.count())
+    }
+
+    @Test
+    @DisplayName("Deve dar erro ao tentar remover uma chave inexistente")
+    fun deveDarErroAoTentarRemoverUmaChaveInexistente() {
+        assertEquals(0, repository.count())
+        val chave = chaveFactory()
+        val erro = assertThrows<StatusRuntimeException> {
+            keyManager.remove(
+                RemoveChaveRequest.newBuilder()
+                    .setChavePixId(chave.id.toString())
+                    .setClienteId(chave.obterTitularId().toString())
+                    .build()
+            )
+        }
+        assertEquals(0, repository.count())
+        assertNotNull(erro)
+
+        with(erro) {
+            assertEquals(Status.NOT_FOUND.code, erro.status.code)
+        }
+    }
+
+    @Test
+    @DisplayName("Deve dar erro ao tentar remover uma chave de outro cliente")
+    fun deveDarErroAoTentarRemoverUmaChaveDeOutroCliente() {
+        assertEquals(0, repository.count())
+        val chave = repository.save(chaveFactory())
+        assertEquals(1, repository.count())
+        val erro = assertThrows<StatusRuntimeException> {
+            keyManager.remove(
+                RemoveChaveRequest.newBuilder()
+                    .setChavePixId(chave.id.toString())
+                    .setClienteId(UUID.randomUUID().toString()) //mandando um id de um cliente diferente (inexistente)
+                    .build()
+            )
+        }
+
+        assertEquals(1, repository.count())
+        assertNotNull(erro)
+
+        with(erro) {
+            assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
+        }
+    }
+
+    fun chaveFactory(
+        instituicao: Instituicao = Instituicao("Itau", "12345678"),
+        titular: Titular = Titular(UUID.randomUUID(), "Alexandre", "92393978097"),
+        conta: Conta = Conta("0001", "12345", TipoConta.CONTA_CORRENTE, titular, instituicao)
+    ): ChavePix {
+        return ChavePix(conta, UUID.randomUUID().toString(), TipoChave.ALEATORIA)
+    }
+
+    @Factory
+    class Clients {
+        @Singleton
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel):
+                PixKeyManagerRemoveServiceGrpc.PixKeyManagerRemoveServiceBlockingStub {
+            return PixKeyManagerRemoveServiceGrpc.newBlockingStub(channel)
+        }
+    }
+}
