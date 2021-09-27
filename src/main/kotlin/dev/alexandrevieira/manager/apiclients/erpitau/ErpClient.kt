@@ -8,7 +8,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 
 @Client(value = "http://\${values.erp-itau.host}:\${values.erp-itau.port}")
-interface ErpItauClient {
+interface ErpClient {
 
     @Get("/api/v1/clientes/{clienteId}/contas")
     fun buscaConta(@PathVariable clienteId: String, @QueryValue tipo: TipoConta): HttpResponse<ContaResponse>

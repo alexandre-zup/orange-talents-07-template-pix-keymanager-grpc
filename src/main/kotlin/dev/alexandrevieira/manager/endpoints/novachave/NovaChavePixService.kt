@@ -1,17 +1,16 @@
 package dev.alexandrevieira.manager.endpoints.novachave
 
+import dev.alexandrevieira.manager.apiclients.bcb.BcbService
+import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbCreatePixKeyRequest
+import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbCreatePixKeyResponse
 import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
-import dev.alexandrevieira.manager.apiclients.erpitau.ConverterService
-import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauClient
+import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauService
 import dev.alexandrevieira.manager.data.model.ChavePix
 import dev.alexandrevieira.manager.data.repositories.ChavePixRepository
 import dev.alexandrevieira.manager.exception.customexceptions.ChavePixExistenteException
 import dev.alexandrevieira.manager.exception.customexceptions.InternalServerError
-import dev.alexandrevieira.manager.exception.customexceptions.ServiceUnavailableException
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus.NOT_FOUND
-import io.micronaut.http.HttpStatus.OK
-import io.micronaut.http.client.exceptions.HttpClientException
+import io.micronaut.http.HttpStatus.*
 import io.micronaut.validation.Validated
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -28,34 +27,52 @@ class NovaChavePixService {
     private lateinit var repository: ChavePixRepository
 
     @Inject
-    private lateinit var itauClient: ErpItauClient
+    private lateinit var erpItauService: ErpItauService
 
     @Inject
-    private lateinit var converterService: ConverterService
+    private lateinit var bcbService: BcbService
 
     @Transactional
     fun registra(@Valid novaChave: NovaChavePixValidated): ChavePix {
+        log.info("chamado 'registra' com parâmetros: novaChave $novaChave")
+
         if (repository.existsByChave(novaChave.chave!!))
             throw ChavePixExistenteException("Chave ${novaChave.chave} já existe")
 
-        val response: HttpResponse<ContaResponse>
+        log.info("Iniciando consulta no ERP Itau")
 
-        try {
-            response = itauClient.buscaConta(novaChave.clienteId!!, novaChave.tipoConta!!)
-        } catch (e: HttpClientException) {
-            throw ServiceUnavailableException("Service Unavailable")
-        }
+        val itauHttpResponse: HttpResponse<ContaResponse> =
+            erpItauService.buscaConta(novaChave.clienteId!!, novaChave.tipoConta!!)
 
-        when (response.status) {
+        log.info("Resultado da busca no ERP Itau: Status ${itauHttpResponse.status}. Body ${itauHttpResponse.body()}")
+
+        when (itauHttpResponse.status) {
             NOT_FOUND -> throw IllegalStateException("Cliente não encontrado no Itau")
             OK -> {
             }
             else -> throw InternalServerError("Internal Server Error")
         }
 
-        val contaResponse: ContaResponse = response.body()!!
-        val conta = converterService.toModel(contaResponse)
+        val itauReponseBody: ContaResponse = itauHttpResponse.body()!!
+        val conta = erpItauService.toModel(itauReponseBody)
         val chave = novaChave.toModel(conta)
-        return repository.save(chave)
+        log.info("Criando $chave")
+        repository.save(chave)
+
+        log.info("Solicitando cadastramento no BCB")
+        val bcbRequest: BcbCreatePixKeyRequest =
+            bcbService.createRequest(novaChave.tipoChave!!, conta, novaChave.chave)
+
+        val bcbHttpResponse: HttpResponse<BcbCreatePixKeyResponse> = bcbService.registra(bcbRequest)
+        log.info("Resultado do registro no BCB: Status ${bcbHttpResponse.status}. Body ${bcbHttpResponse.body()}")
+
+        if (bcbHttpResponse.status != CREATED)
+            throw InternalServerError("Erro Inesperado")
+
+        val bcbResponseBody: BcbCreatePixKeyResponse = bcbHttpResponse.body()!!
+        chave.informaCriacaoNoBcb(bcbResponseBody.key, bcbResponseBody.createdAt)
+        return chave
     }
+
+
 }

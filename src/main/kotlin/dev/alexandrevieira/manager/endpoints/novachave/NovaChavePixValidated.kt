@@ -7,7 +7,6 @@ import dev.alexandrevieira.manager.data.model.Conta
 import dev.alexandrevieira.manager.data.model.enums.TipoChave
 import dev.alexandrevieira.manager.data.model.enums.TipoConta
 import io.micronaut.core.annotation.Introspected
-import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -28,8 +27,8 @@ data class NovaChavePixValidated(
 ) {
     fun toModel(@Valid conta: Conta): ChavePix {
         return ChavePix(
-            tipo = TipoChave.valueOf(tipoChave!!.name),
-            chave = if (tipoChave == TipoChave.ALEATORIA) UUID.randomUUID().toString() else chave!!,
+            tipo = tipoChave!!,
+            chave = chave!!,
             conta = conta
         )
     }

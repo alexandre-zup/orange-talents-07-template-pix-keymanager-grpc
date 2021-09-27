@@ -7,11 +7,11 @@ option objc_class_prefix = "HLW";
 
 package dev.alexandrevieira;
 
-service PixKeyManagerRegistravaService {
+service KeyManagerRegistraService {
     rpc registra(NovaChavePixRequest) returns (NovaChavePixResponse) {}
 }
 
-service PixKeyManagerRemoveService {
+service KeyManagerRemoveService {
     rpc remove(RemoveChaveRequest) returns (RemoveChaveResponse) {}
 }
 

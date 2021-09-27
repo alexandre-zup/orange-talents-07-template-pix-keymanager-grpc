@@ -1,5 +1,8 @@
 package dev.alexandrevieira.manager.endpoints.remove
 
+import dev.alexandrevieira.manager.apiclients.bcb.BcbClient
+import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbDeletePixKeyRequest
+import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbDeletePixKeyResponse
 import dev.alexandrevieira.manager.data.model.ChavePix
 import dev.alexandrevieira.manager.data.model.Conta
 import dev.alexandrevieira.manager.data.model.Instituicao
@@ -10,14 +13,21 @@ import dev.alexandrevieira.manager.data.repositories.ChavePixRepository
 import dev.alexandrevieira.manager.data.repositories.ContaRepository
 import dev.alexandrevieira.manager.data.repositories.InstituicaoRepository
 import dev.alexandrevieira.manager.data.repositories.TitularRepository
-import dev.alexandrevieira.stubs.PixKeyManagerRemoveServiceGrpc
+import dev.alexandrevieira.stubs.KeyManagerRemoveServiceGrpc
 import dev.alexandrevieira.stubs.RemoveChaveRequest
+import dev.alexandrevieira.stubs.RemoveChaveResponse
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientException
+import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -27,6 +37,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest(transactional = false)
@@ -44,7 +56,11 @@ internal class RemoveChaveEndpointTest {
     private lateinit var titularRepository: TitularRepository
 
     @field:Inject
-    private lateinit var keyManager: PixKeyManagerRemoveServiceGrpc.PixKeyManagerRemoveServiceBlockingStub
+    private lateinit var keyManager: KeyManagerRemoveServiceGrpc.KeyManagerRemoveServiceBlockingStub
+
+    @field:Inject
+    @field:Client("/")
+    lateinit var bcbClient: BcbClient
 
     @BeforeEach
     fun setUp() {
@@ -60,6 +76,12 @@ internal class RemoveChaveEndpointTest {
         assertEquals(0, repository.count())
         val chave = repository.save(chaveFactory())
         assertEquals(1, repository.count())
+
+        val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
+        val bcbResponse = BcbDeletePixKeyResponse(bcbRequest.key, bcbRequest.participant, LocalDateTime.now())
+        Mockito.`when`(bcbClient.remove(bcbRequest.key, bcbRequest))
+            .thenReturn(HttpResponse.ok(bcbResponse))
+
         keyManager.remove(
             RemoveChaveRequest.newBuilder()
                 .setChavePixId(chave.id.toString())
@@ -77,17 +99,14 @@ internal class RemoveChaveEndpointTest {
         val erro = assertThrows<StatusRuntimeException> {
             keyManager.remove(
                 RemoveChaveRequest.newBuilder()
-                    .setChavePixId(chave.id.toString())
+                    .setChavePixId(UUID.randomUUID().toString())
                     .setClienteId(chave.obterTitularId().toString())
                     .build()
             )
         }
         assertEquals(0, repository.count())
         assertNotNull(erro)
-
-        with(erro) {
-            assertEquals(Status.NOT_FOUND.code, erro.status.code)
-        }
+        assertEquals(Status.NOT_FOUND.code, erro.status.code)
     }
 
     @Test
@@ -107,10 +126,86 @@ internal class RemoveChaveEndpointTest {
 
         assertEquals(1, repository.count())
         assertNotNull(erro)
+        assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
+    }
 
-        with(erro) {
-            assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
+    @Test
+    @DisplayName("Deve dar erro ao tentar remover uma chave de outra instituicao")
+    fun deveDarErroAoTentarRemoverUmaChaveDeOutraInstituicao() {
+        assertEquals(0, repository.count())
+        val chave = repository.save(chaveFactory())
+        assertEquals(1, repository.count())
+
+        val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
+
+        Mockito.`when`(bcbClient.remove(chave.chave, bcbRequest))
+            .thenThrow(HttpClientResponseException("", HttpResponse.status<Void>(HttpStatus.FORBIDDEN)))
+
+        val erro = assertThrows<StatusRuntimeException> {
+            keyManager.remove(
+                RemoveChaveRequest.newBuilder()
+                    .setChavePixId(chave.id.toString())
+                    .setClienteId(chave.obterTitularId().toString())
+                    .build()
+            )
         }
+
+        assertEquals(1, repository.count())
+        assertNotNull(erro)
+        assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
+    }
+
+    @Test
+    @DisplayName("Deve simular resposta inesperada do BCB")
+    fun deveSimularRespostaInesperadaDoBcb() {
+        assertEquals(0, repository.count())
+        val chave = repository.save(chaveFactory())
+        assertEquals(1, repository.count())
+
+        val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
+
+        Mockito.`when`(bcbClient.remove(chave.chave, bcbRequest))
+            .thenThrow(HttpClientResponseException("", HttpResponse.badRequest<Void>()))
+
+        val erro = assertThrows<StatusRuntimeException> {
+            keyManager.remove(
+                RemoveChaveRequest.newBuilder()
+                    .setChavePixId(chave.id.toString())
+                    .setClienteId(chave.obterTitularId().toString())
+                    .build()
+            )
+        }
+
+        assertEquals(1, repository.count())
+        assertNotNull(erro)
+        assertEquals(Status.INTERNAL.code, erro.status.code)
+
+    }
+
+    @Test
+    @DisplayName("Deve simular BCB caido")
+    fun deveSimularBcbCaido() {
+        assertEquals(0, repository.count())
+        val chave = repository.save(chaveFactory())
+        assertEquals(1, repository.count())
+
+        val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
+
+        Mockito.`when`(bcbClient.remove(chave.chave, bcbRequest))
+            .thenThrow(HttpClientException("Cannot connect"))
+
+        val erro = assertThrows<StatusRuntimeException> {
+            keyManager.remove(
+                RemoveChaveRequest.newBuilder()
+                    .setChavePixId(chave.id.toString())
+                    .setClienteId(chave.obterTitularId().toString())
+                    .build()
+            )
+        }
+
+        assertEquals(1, repository.count())
+        assertNotNull(erro)
+        assertEquals(Status.UNAVAILABLE.code, erro.status.code)
     }
 
     fun chaveFactory(
@@ -125,8 +220,13 @@ internal class RemoveChaveEndpointTest {
     class Clients {
         @Singleton
         fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel):
-                PixKeyManagerRemoveServiceGrpc.PixKeyManagerRemoveServiceBlockingStub {
-            return PixKeyManagerRemoveServiceGrpc.newBlockingStub(channel)
+                KeyManagerRemoveServiceGrpc.KeyManagerRemoveServiceBlockingStub {
+            return KeyManagerRemoveServiceGrpc.newBlockingStub(channel)
         }
+    }
+
+    @MockBean(BcbClient::class)
+    fun bcbClient(): BcbClient {
+        return Mockito.mock(BcbClient::class.java)
     }
 }

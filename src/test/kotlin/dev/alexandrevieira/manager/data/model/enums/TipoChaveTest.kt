@@ -1,5 +1,6 @@
 package dev.alexandrevieira.manager.data.model.enums
 
+import dev.alexandrevieira.manager.apiclients.bcb.dto.KeyType
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -25,6 +26,13 @@ internal class TipoChaveTest {
             with(TipoChave.ALEATORIA) {
                 assertFalse(valida("algum valor"))
             }
+        }
+
+        @Test
+        @DisplayName("Deve converter o tipo para BCB")
+        internal fun deveConverterTipoParaBcb() {
+            val keyType: KeyType = TipoChave.ALEATORIA.converte()
+            assertEquals(KeyType.RANDOM, keyType)
         }
     }
 
@@ -60,6 +68,13 @@ internal class TipoChaveTest {
                 assertFalse(valida(null))
             }
         }
+
+        @Test
+        @DisplayName("Deve converter o tipo para BCB")
+        internal fun deveConverterTipoParaBcb() {
+            val keyType: KeyType = TipoChave.CPF.converte()
+            assertEquals(KeyType.CPF, keyType)
+        }
     }
 
     @Nested
@@ -87,6 +102,13 @@ internal class TipoChaveTest {
                 assertFalse(valida(null))
             }
         }
+
+        @Test
+        @DisplayName("Deve converter o tipo para BCB")
+        internal fun deveConverterTipoParaBcb() {
+            val keyType: KeyType = TipoChave.EMAIL.converte()
+            assertEquals(KeyType.EMAIL, keyType)
+        }
     }
 
     @Nested
@@ -112,6 +134,13 @@ internal class TipoChaveTest {
                 assertFalse(valida("email@email.com"))
                 assertFalse(valida(null))
             }
+        }
+
+        @Test
+        @DisplayName("Deve converter o tipo para BCB")
+        internal fun deveConverterTipoParaBcb() {
+            val keyType: KeyType = TipoChave.CELULAR.converte()
+            assertEquals(KeyType.PHONE, keyType)
         }
     }
 }

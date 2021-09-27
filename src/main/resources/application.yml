@@ -15,7 +15,7 @@ datasources:
     username: ${DB_USER:alex}
     password: ${DB_PASSWORD:alex}
     dialect: ${DB_DIALECT:POSTGRES}
-    schema-generate: CREATE_DROP
+    schema-generate: UPDATE
 
 jpa:
   default:
@@ -30,3 +30,6 @@ values:
   erp-itau:
     host: ${ERP_ITAU_HOST:localhost}
     port: ${ERP_ITAU_PORT:9091}
+  bcb:
+    host: ${BCB_HOST:localhost}
+    port: ${BCB_PORT:8082}

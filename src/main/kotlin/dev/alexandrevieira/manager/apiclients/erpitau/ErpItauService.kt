@@ -7,11 +7,32 @@ import dev.alexandrevieira.manager.data.model.enums.TipoConta
 import dev.alexandrevieira.manager.data.repositories.ContaRepository
 import dev.alexandrevieira.manager.data.repositories.InstituicaoRepository
 import dev.alexandrevieira.manager.data.repositories.TitularRepository
+import dev.alexandrevieira.manager.exception.customexceptions.ServiceUnavailableException
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.client.exceptions.HttpClientException
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 
 @Singleton
-class ConverterService {
+class ErpItauService {
+    private val log = LoggerFactory.getLogger(this.javaClass)
+
+    @Inject
+    private lateinit var itauClient: ErpClient
+
+    fun buscaConta(clienteId: String, tipoConta: TipoConta): HttpResponse<ContaResponse> {
+        val itauHttpResponse: HttpResponse<ContaResponse>
+
+        try {
+            itauHttpResponse = itauClient.buscaConta(clienteId, tipoConta)
+        } catch (e: HttpClientException) {
+            log.error("Erro de conexão com ERP: ${e.message}")
+            throw ServiceUnavailableException("Serviço indisponível")
+        }
+        return itauHttpResponse
+    }
+
     @Inject
     lateinit var titularRepository: TitularRepository
 

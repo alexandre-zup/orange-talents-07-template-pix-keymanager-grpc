@@ -41,9 +41,10 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
             is ServiceUnavailableException -> status(Status.UNAVAILABLE, ex)
             is IllegalStateException -> status(Status.FAILED_PRECONDITION, ex)
             is ConstraintViolationException -> status(Status.INVALID_ARGUMENT, ex)
-            is PersistenceException -> handlePersistenceException(ex)
+            is PersistenceException -> status(Status.INVALID_ARGUMENT, ex)
             is ChavePixExistenteException -> status(Status.ALREADY_EXISTS, ex)
             is ChavePixNaoEncontradaException -> status(Status.NOT_FOUND, ex)
+            is ChaveDeOutraInstituicaoException -> status(Status.PERMISSION_DENIED, ex)
             is InternalServerError -> status(Status.INTERNAL, ex)
             else -> Status.UNKNOWN.withCause(ex).withDescription("Ops, um erro inesperado ocorreu")
         }
@@ -53,24 +54,4 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
         return Status.fromCode(status.code).withCause(ex).withDescription(ex.message)
     }
 
-    private fun handlePersistenceException(e: PersistenceException): Status {
-        val cause = e.cause
-
-        if (cause is org.hibernate.exception.ConstraintViolationException) {
-            val constraintName = cause.constraintName
-            if (constraintName.isNullOrBlank()) {
-                return Status.INVALID_ARGUMENT.withCause(cause).withDescription(cause.message)
-            }
-
-            val message = messageSource.getMessage(
-                "data.integrity.error.$constraintName",
-                MessageSource.MessageContext.DEFAULT
-            )
-
-            return Status.INVALID_ARGUMENT.withCause(cause).withDescription(message.orElse("dados invalidos"))
-        } else {
-            val message = cause?.message ?: e.message
-            return Status.INVALID_ARGUMENT.withCause(cause ?: e).withDescription(message)
-        }
-    }
 }

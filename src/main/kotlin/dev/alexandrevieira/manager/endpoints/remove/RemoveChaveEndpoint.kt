@@ -1,7 +1,7 @@
 package dev.alexandrevieira.manager.endpoints.remove
 
 import dev.alexandrevieira.manager.exception.handlers.ErrorAroundHandler
-import dev.alexandrevieira.stubs.PixKeyManagerRemoveServiceGrpc
+import dev.alexandrevieira.stubs.KeyManagerRemoveServiceGrpc
 import dev.alexandrevieira.stubs.RemoveChaveRequest
 import dev.alexandrevieira.stubs.RemoveChaveResponse
 import io.grpc.stub.StreamObserver
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 
 @ErrorAroundHandler
 @Singleton
-class RemoveChaveEndpoint : PixKeyManagerRemoveServiceGrpc.PixKeyManagerRemoveServiceImplBase() {
+class RemoveChaveEndpoint : KeyManagerRemoveServiceGrpc.KeyManagerRemoveServiceImplBase() {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     @Inject

@@ -2,9 +2,9 @@ package dev.alexandrevieira.manager.endpoints.novachave
 
 import dev.alexandrevieira.manager.data.model.ChavePix
 import dev.alexandrevieira.manager.exception.handlers.ErrorAroundHandler
+import dev.alexandrevieira.stubs.KeyManagerRegistraServiceGrpc
 import dev.alexandrevieira.stubs.NovaChavePixRequest
 import dev.alexandrevieira.stubs.NovaChavePixResponse
-import dev.alexandrevieira.stubs.PixKeyManagerRegistraServiceGrpc
 import io.grpc.stub.StreamObserver
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 
 @ErrorAroundHandler
 @Singleton
-class NovaChaveEndpoint : PixKeyManagerRegistraServiceGrpc.PixKeyManagerRegistraServiceImplBase() {
+class NovaChaveEndpoint : KeyManagerRegistraServiceGrpc.KeyManagerRegistraServiceImplBase() {
     @Inject
     private lateinit var service: NovaChavePixService
     private val log = LoggerFactory.getLogger(NovaChaveEndpoint::class.java)

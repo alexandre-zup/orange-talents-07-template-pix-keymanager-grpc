@@ -1,12 +1,20 @@
 package dev.alexandrevieira.manager.data.model
 
-import dev.alexandrevieira.manager.data.model.enums.TipoConta.CONTA_CORRENTE
-import org.junit.jupiter.api.Assertions.*
+import dev.alexandrevieira.manager.data.model.enums.TipoConta
+import dev.alexandrevieira.manager.data.repositories.ContaRepository
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.*
 
+@MicronautTest(transactional = false)
 internal class ContaTest {
+    @Inject
+    lateinit var repository: ContaRepository
+
 
     @Test
     @DisplayName("Testa properties")
@@ -22,24 +30,9 @@ internal class ContaTest {
 
         val agencia = "0001"
         val cNumero = "12345"
-        val conta = Conta(agencia, cNumero, CONTA_CORRENTE, titular, instituicao)
+        val conta = Conta(agencia, cNumero, TipoConta.CONTA_CORRENTE, titular, instituicao)
+        repository.save(conta)
 
-        assertNotNull(instituicao)
-        assertNull(instituicao.id)
-        assertEquals(iNome, instituicao.nome)
-        assertEquals(ispb, instituicao.ispb)
-
-        assertNotNull(titular)
-        assertEquals(tNome, titular.nome)
-        assertEquals(cpf, titular.cpf)
-        assertEquals(id, titular.id)
-
-        assertNotNull(conta)
-        assertNull(conta.id)
-        assertEquals(instituicao, conta.instituicao)
-        assertEquals(titular, conta.titular)
-        assertEquals(agencia, conta.agencia)
-        assertEquals(cNumero, conta.numero)
-        assertEquals(CONTA_CORRENTE, conta.tipo)
+        assertNotNull(conta.id)
     }
 }
