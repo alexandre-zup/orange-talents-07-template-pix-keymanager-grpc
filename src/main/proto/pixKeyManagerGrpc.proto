@@ -7,47 +7,97 @@ option objc_class_prefix = "HLW";
 
 package dev.alexandrevieira;
 
+import "google/protobuf/timestamp.proto";
+
 service KeyManagerRegistraService {
-    rpc registra(NovaChavePixRequest) returns (NovaChavePixResponse) {}
+  rpc registra(NovaChavePixRequest) returns (NovaChavePixResponse) {}
 }
 
 service KeyManagerRemoveService {
-    rpc remove(RemoveChaveRequest) returns (RemoveChaveResponse) {}
+  rpc remove(RemoveChaveRequest) returns (RemoveChaveResponse) {}
+}
+
+service KeyManagerConsultaService {
+  rpc consulta(ConsultaChaveRequest) returns (ConsultaChaveResponse) {}
 }
 
 enum TipoDaChave {
-    CHAVE_DESCONHECIDA = 0;
-    CPF = 1;
-    CELULAR = 2;
-    EMAIL = 3;
-    ALEATORIA = 4;
+  CHAVE_DESCONHECIDA = 0;
+  CPF = 1;
+  CELULAR = 2;
+  EMAIL = 3;
+  ALEATORIA = 4;
 }
 
 enum TipoDaConta {
-    CONTA_DESCONHECIDA = 0;
-    CONTA_CORRENTE = 1;
-    CONTA_POUPANCA = 2;
+  CONTA_DESCONHECIDA = 0;
+  CONTA_CORRENTE = 1;
+  CONTA_POUPANCA = 2;
 }
 
 message NovaChavePixRequest {
-    string cliente_id = 1;
-    TipoDaChave tipo_chave = 2;
-    string valor_chave = 3;
-    TipoDaConta tipo_conta = 4;
+  string cliente_id = 1;
+  TipoDaChave tipo_chave = 2;
+  string valor_chave = 3;
+  TipoDaConta tipo_conta = 4;
 }
 
 message NovaChavePixResponse {
-    string cliente_id = 1;
-    string chave_pix_id = 2;
+  string cliente_id = 1;
+  string chave_pix_id = 2;
 }
 
 
 message RemoveChaveRequest {
-    string cliente_id = 1;
-    string chave_pix_id = 2;
+  string cliente_id = 1;
+  string chave_pix_id = 2;
 }
 
 message RemoveChaveResponse {
+  string cliente_id = 1;
+  string chave_pix_id = 2;
+}
+
+message ConsultaChaveRequest {
+  message FiltroPorId {
     string cliente_id = 1;
     string chave_pix_id = 2;
+  }
+
+  oneof filtro {
+    FiltroPorId pixId = 1;
+    string chave = 2;
+  }
 }
+
+
+
+message ConsultaChaveResponse {
+
+  message ContaInfo {
+
+    message TitularInfo {
+      string id = 1;
+      string nome = 2;
+      string cpf = 3;
+    }
+
+    message InstituicaoInfo {
+      string ispb = 1;
+      string nome = 2;
+    }
+
+    string agencia = 1;
+    string numero = 2;
+    TipoDaConta tipo = 3;
+    InstituicaoInfo instituicao = 4;
+    TitularInfo titular = 5;
+  }
+
+  string chave_pix_id = 1;
+  TipoDaChave tipo = 2;
+  string chave = 3;
+  google.protobuf.Timestamp criada_em = 4;
+  ContaInfo conta = 5;
+}
+

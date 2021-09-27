@@ -2,7 +2,7 @@ package dev.alexandrevieira.manager.endpoints.novachave
 
 import dev.alexandrevieira.manager.apiclients.bcb.BcbService
 import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbCreatePixKeyRequest
-import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbCreatePixKeyResponse
+import dev.alexandrevieira.manager.apiclients.bcb.dto.BcbPixKeyResponse
 import dev.alexandrevieira.manager.apiclients.erpitau.ContaResponse
 import dev.alexandrevieira.manager.apiclients.erpitau.ErpItauService
 import dev.alexandrevieira.manager.data.model.ChavePix
@@ -63,13 +63,13 @@ class NovaChavePixService {
         val bcbRequest: BcbCreatePixKeyRequest =
             bcbService.createRequest(novaChave.tipoChave!!, conta, novaChave.chave)
 
-        val bcbHttpResponse: HttpResponse<BcbCreatePixKeyResponse> = bcbService.registra(bcbRequest)
+        val bcbHttpResponse: HttpResponse<BcbPixKeyResponse> = bcbService.registra(bcbRequest)
         log.info("Resultado do registro no BCB: Status ${bcbHttpResponse.status}. Body ${bcbHttpResponse.body()}")
 
         if (bcbHttpResponse.status != CREATED)
             throw InternalServerError("Erro Inesperado")
 
-        val bcbResponseBody: BcbCreatePixKeyResponse = bcbHttpResponse.body()!!
+        val bcbResponseBody: BcbPixKeyResponse = bcbHttpResponse.body()!!
         chave.informaCriacaoNoBcb(bcbResponseBody.key, bcbResponseBody.createdAt)
         return chave
     }

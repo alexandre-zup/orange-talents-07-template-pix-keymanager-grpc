@@ -18,7 +18,7 @@ class RemoveChaveEndpoint : KeyManagerRemoveServiceGrpc.KeyManagerRemoveServiceI
     private lateinit var service: RemoveChaveService
 
     override fun remove(request: RemoveChaveRequest?, responseObserver: StreamObserver<RemoveChaveResponse>?) {
-        log.info(request!!.toString())
+        log.info("chamado 'remove' com request: ${request!!}")
         service.remove(chaveId = request.chavePixId, clienteId = request.clienteId)
         responseObserver?.onNext(
             RemoveChaveResponse.newBuilder()

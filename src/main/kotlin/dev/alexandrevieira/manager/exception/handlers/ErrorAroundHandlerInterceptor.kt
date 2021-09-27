@@ -39,6 +39,7 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
         return when (ex) {
             is NaoAutorizadoException -> status(Status.PERMISSION_DENIED, ex)
             is ServiceUnavailableException -> status(Status.UNAVAILABLE, ex)
+            is IllegalArgumentException -> status(Status.INVALID_ARGUMENT, ex)
             is IllegalStateException -> status(Status.FAILED_PRECONDITION, ex)
             is ConstraintViolationException -> status(Status.INVALID_ARGUMENT, ex)
             is PersistenceException -> status(Status.INVALID_ARGUMENT, ex)

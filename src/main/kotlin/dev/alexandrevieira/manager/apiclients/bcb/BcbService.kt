@@ -32,8 +32,8 @@ class BcbService {
         return BcbCreatePixKeyRequest(keyType, valorChave, bankAccount, owner)
     }
 
-    fun registra(request: BcbCreatePixKeyRequest): HttpResponse<BcbCreatePixKeyResponse> {
-        val bcbHttpResponse: HttpResponse<BcbCreatePixKeyResponse>
+    fun registra(request: BcbCreatePixKeyRequest): HttpResponse<BcbPixKeyResponse> {
+        val bcbHttpResponse: HttpResponse<BcbPixKeyResponse>
         try {
             bcbHttpResponse = bcbClient.registra(request)
         } catch (ex: HttpClientResponseException) {
@@ -67,5 +67,19 @@ class BcbService {
         }
 
         return bcbResponse
+    }
+
+    fun consultaPorChave(chave: String): HttpResponse<BcbPixKeyResponse> {
+        val bcbHttpResponse: HttpResponse<BcbPixKeyResponse>
+        try {
+            bcbHttpResponse = bcbClient.consulta(key = chave)
+        } catch (ex: HttpClientResponseException) {
+            log.error("Erro ao consultar no BCB: Status ${ex.status}. Mensagem ${ex.message}")
+            throw InternalServerError("Erro inesperado")
+        } catch (ex: HttpClientException) {
+            log.error("Erro na conexão com BCB: ${ex.message}")
+            throw ServiceUnavailableException("Serviço indisponível")
+        }
+        return bcbHttpResponse
     }
 }

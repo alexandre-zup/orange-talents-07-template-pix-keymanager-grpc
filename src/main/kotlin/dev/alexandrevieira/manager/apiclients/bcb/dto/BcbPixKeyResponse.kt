@@ -1,8 +1,11 @@
 package dev.alexandrevieira.manager.apiclients.bcb.dto
 
+import dev.alexandrevieira.manager.endpoints.consulta.ChavePixInfoResponse
+import io.micronaut.core.annotation.Introspected
 import java.time.LocalDateTime
 
-data class BcbCreatePixKeyResponse(
+@Introspected
+data class BcbPixKeyResponse(
     val keyType: KeyType,
     val key: String,
     val bankAccount: BankAccountDTO,

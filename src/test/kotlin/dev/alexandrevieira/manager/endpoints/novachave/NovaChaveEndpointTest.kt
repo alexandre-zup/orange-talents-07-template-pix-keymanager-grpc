@@ -405,8 +405,8 @@ internal class NovaChaveEndpointTest {
         return BcbCreatePixKeyRequest(keyType, valorChave, bankAccount, owner)
     }
 
-    private fun bcbResponse(bcbRequest: BcbCreatePixKeyRequest): BcbCreatePixKeyResponse {
-        return BcbCreatePixKeyResponse(
+    private fun bcbResponse(bcbRequest: BcbCreatePixKeyRequest): BcbPixKeyResponse {
+        return BcbPixKeyResponse(
             keyType = bcbRequest.keyType,
             key = if (bcbRequest.keyType == KeyType.RANDOM) UUID.randomUUID().toString() else bcbRequest.key,
             bankAccount = bcbRequest.bankAccount,

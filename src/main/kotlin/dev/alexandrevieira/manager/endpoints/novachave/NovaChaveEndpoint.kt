@@ -19,7 +19,7 @@ class NovaChaveEndpoint : KeyManagerRegistraServiceGrpc.KeyManagerRegistraServic
     private val log = LoggerFactory.getLogger(NovaChaveEndpoint::class.java)
 
     override fun registra(request: NovaChavePixRequest?, observer: StreamObserver<NovaChavePixResponse>?) {
-        log.info(request!!.toString())
+        log.info("chamado 'registra' com request: ${request!!}")
         val requestComValidacoes: NovaChavePixValidated = request.comValidacoes()
         val chaveCriada: ChavePix = service.registra(requestComValidacoes)
         val response = NovaChavePixResponse.newBuilder()
