@@ -7,7 +7,6 @@ import dev.alexandrevieira.stubs.ConsultaChaveRequest
 import dev.alexandrevieira.stubs.ConsultaChaveResponse
 import dev.alexandrevieira.stubs.KeyManagerConsultaServiceGrpc
 import io.grpc.stub.StreamObserver
-import io.micronaut.validation.validator.Validator
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
@@ -23,13 +22,10 @@ class ConsultaChaveEndpoint : KeyManagerConsultaServiceGrpc.KeyManagerConsultaSe
     @Inject
     private lateinit var repository: ChavePixRepository
 
-    @Inject
-    private lateinit var validator: Validator
-
     override fun consulta(request: ConsultaChaveRequest?, observer: StreamObserver<ConsultaChaveResponse>?) {
         log.info("chamado 'consulta' com request: ${request!!}")
 
-        val filtro: Filtro = request.toModel(validator)
+        val filtro: Filtro = request.paraFiltro()
         val chaveInfo: ChavePixInfoResponse = filtro.filtra(repository, bcbService)
 
         observer?.onNext(chaveInfo.toConsultaChaveResponse(chaveInfo))

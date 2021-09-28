@@ -46,8 +46,7 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
             is ChavePixExistenteException -> status(Status.ALREADY_EXISTS, ex)
             is ChavePixNaoEncontradaException -> status(Status.NOT_FOUND, ex)
             is ChaveDeOutraInstituicaoException -> status(Status.PERMISSION_DENIED, ex)
-            is InternalServerError -> status(Status.INTERNAL, ex)
-            else -> Status.UNKNOWN.withCause(ex).withDescription("Ops, um erro inesperado ocorreu")
+            else -> Status.INTERNAL.withCause(ex).withDescription("Ops, um erro inesperado ocorreu")
         }
     }
 
