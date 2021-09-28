@@ -15,7 +15,6 @@ import dev.alexandrevieira.manager.data.repositories.InstituicaoRepository
 import dev.alexandrevieira.manager.data.repositories.TitularRepository
 import dev.alexandrevieira.stubs.KeyManagerRemoveServiceGrpc
 import dev.alexandrevieira.stubs.RemoveChaveRequest
-import dev.alexandrevieira.stubs.RemoveChaveResponse
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -44,7 +43,7 @@ import java.util.*
 @MicronautTest(transactional = false)
 internal class RemoveChaveEndpointTest {
     @field:Inject
-    private lateinit var repository: ChavePixRepository
+    private lateinit var chavePixRepository: ChavePixRepository
 
     @field:Inject
     private lateinit var instituicaoRepository: InstituicaoRepository
@@ -64,7 +63,7 @@ internal class RemoveChaveEndpointTest {
 
     @BeforeEach
     fun setUp() {
-        repository.deleteAll()
+        chavePixRepository.deleteAll()
         contaRepository.deleteAll()
         titularRepository.deleteAll()
         instituicaoRepository.deleteAll()
@@ -73,9 +72,9 @@ internal class RemoveChaveEndpointTest {
     @Test
     @DisplayName("Deve remover uma chave pix")
     fun deveRemoverUmaChavePix() {
-        assertEquals(0, repository.count())
-        val chave = repository.save(chaveFactory())
-        assertEquals(1, repository.count())
+        assertEquals(0, chavePixRepository.count())
+        val chave = chavePixRepository.save(chaveFactory())
+        assertEquals(1, chavePixRepository.count())
 
         val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
         val bcbResponse = BcbDeletePixKeyResponse(bcbRequest.key, bcbRequest.participant, LocalDateTime.now())
@@ -88,13 +87,13 @@ internal class RemoveChaveEndpointTest {
                 .setClienteId(chave.obterTitularId().toString())
                 .build()
         )
-        assertEquals(0, repository.count())
+        assertEquals(0, chavePixRepository.count())
     }
 
     @Test
     @DisplayName("Deve dar erro ao tentar remover uma chave inexistente")
     fun deveDarErroAoTentarRemoverUmaChaveInexistente() {
-        assertEquals(0, repository.count())
+        assertEquals(0, chavePixRepository.count())
         val chave = chaveFactory()
         val erro = assertThrows<StatusRuntimeException> {
             keyManager.remove(
@@ -104,7 +103,7 @@ internal class RemoveChaveEndpointTest {
                     .build()
             )
         }
-        assertEquals(0, repository.count())
+        assertEquals(0, chavePixRepository.count())
         assertNotNull(erro)
         assertEquals(Status.NOT_FOUND.code, erro.status.code)
     }
@@ -112,9 +111,9 @@ internal class RemoveChaveEndpointTest {
     @Test
     @DisplayName("Deve dar erro ao tentar remover uma chave de outro cliente")
     fun deveDarErroAoTentarRemoverUmaChaveDeOutroCliente() {
-        assertEquals(0, repository.count())
-        val chave = repository.save(chaveFactory())
-        assertEquals(1, repository.count())
+        assertEquals(0, chavePixRepository.count())
+        val chave = chavePixRepository.save(chaveFactory())
+        assertEquals(1, chavePixRepository.count())
         val erro = assertThrows<StatusRuntimeException> {
             keyManager.remove(
                 RemoveChaveRequest.newBuilder()
@@ -124,7 +123,7 @@ internal class RemoveChaveEndpointTest {
             )
         }
 
-        assertEquals(1, repository.count())
+        assertEquals(1, chavePixRepository.count())
         assertNotNull(erro)
         assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
     }
@@ -132,9 +131,9 @@ internal class RemoveChaveEndpointTest {
     @Test
     @DisplayName("Deve dar erro ao tentar remover uma chave de outra instituicao")
     fun deveDarErroAoTentarRemoverUmaChaveDeOutraInstituicao() {
-        assertEquals(0, repository.count())
-        val chave = repository.save(chaveFactory())
-        assertEquals(1, repository.count())
+        assertEquals(0, chavePixRepository.count())
+        val chave = chavePixRepository.save(chaveFactory())
+        assertEquals(1, chavePixRepository.count())
 
         val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
 
@@ -150,7 +149,7 @@ internal class RemoveChaveEndpointTest {
             )
         }
 
-        assertEquals(1, repository.count())
+        assertEquals(1, chavePixRepository.count())
         assertNotNull(erro)
         assertEquals(Status.PERMISSION_DENIED.code, erro.status.code)
     }
@@ -158,9 +157,9 @@ internal class RemoveChaveEndpointTest {
     @Test
     @DisplayName("Deve simular resposta inesperada do BCB")
     fun deveSimularRespostaInesperadaDoBcb() {
-        assertEquals(0, repository.count())
-        val chave = repository.save(chaveFactory())
-        assertEquals(1, repository.count())
+        assertEquals(0, chavePixRepository.count())
+        val chave = chavePixRepository.save(chaveFactory())
+        assertEquals(1, chavePixRepository.count())
 
         val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
 
@@ -176,7 +175,7 @@ internal class RemoveChaveEndpointTest {
             )
         }
 
-        assertEquals(1, repository.count())
+        assertEquals(1, chavePixRepository.count())
         assertNotNull(erro)
         assertEquals(Status.INTERNAL.code, erro.status.code)
 
@@ -185,9 +184,9 @@ internal class RemoveChaveEndpointTest {
     @Test
     @DisplayName("Deve simular BCB caido")
     fun deveSimularBcbCaido() {
-        assertEquals(0, repository.count())
-        val chave = repository.save(chaveFactory())
-        assertEquals(1, repository.count())
+        assertEquals(0, chavePixRepository.count())
+        val chave = chavePixRepository.save(chaveFactory())
+        assertEquals(1, chavePixRepository.count())
 
         val bcbRequest = BcbDeletePixKeyRequest(chave.chave, chave.conta.instituicao.ispb)
 
@@ -203,7 +202,7 @@ internal class RemoveChaveEndpointTest {
             )
         }
 
-        assertEquals(1, repository.count())
+        assertEquals(1, chavePixRepository.count())
         assertNotNull(erro)
         assertEquals(Status.UNAVAILABLE.code, erro.status.code)
     }
