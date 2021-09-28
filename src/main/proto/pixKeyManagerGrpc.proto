@@ -21,6 +21,10 @@ service KeyManagerConsultaService {
   rpc consulta(ConsultaChaveRequest) returns (ConsultaChaveResponse) {}
 }
 
+service KeyManagerListaService {
+  rpc lista(ListaChaveRequest) returns (ListaChaveResponse) {}
+}
+
 enum TipoDaChave {
   CHAVE_DESCONHECIDA = 0;
   CPF = 1;
@@ -101,3 +105,19 @@ message ConsultaChaveResponse {
   ContaInfo conta = 5;
 }
 
+message ListaChaveRequest {
+  string cliente_id = 1;
+}
+
+message ListaChaveResponse {
+  message ChaveInfo {
+    string chave_pix_id = 1;
+    string cliente_id = 2;
+    TipoDaChave tipo = 3;
+    string chave = 4;
+    TipoDaConta tipo_conta = 5;
+    google.protobuf.Timestamp criada_em = 6;
+  }
+
+  repeated ChaveInfo chaves = 1;
+}
