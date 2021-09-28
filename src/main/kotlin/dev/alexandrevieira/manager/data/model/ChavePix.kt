@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
 import javax.validation.Valid
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -19,7 +18,7 @@ class ChavePix(
     @field:NotNull
     @field:Valid
     @field:JoinColumn(nullable = false)
-    @field:ManyToOne(cascade = [CascadeType.PERSIST])
+    @field:ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     val conta: Conta,
 
     chave: String,

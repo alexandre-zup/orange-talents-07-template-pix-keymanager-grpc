@@ -10,9 +10,9 @@ class Conta(
     val numero: String,
     @field:Enumerated(EnumType.STRING)
     val tipo: TipoConta,
-    @field:ManyToOne(cascade = [CascadeType.PERSIST])
+    @field:ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     val titular: Titular,
-    @field:ManyToOne(cascade = [CascadeType.PERSIST])
+    @field:ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     val instituicao: Instituicao
 ) {
     @Id
