@@ -45,7 +45,7 @@ internal class ChavePixTest {
         val criadaNoBcb: Boolean = chave.criadaNoBcb
         val valorChave: String = chave.chave
 
-        chave.informaCriacaoNoBcb(UUID.randomUUID().toString(), LocalDateTime.now())
+        chave.informaCriacaoNoBcb(UUID.randomUUID().toString(), criadaEm.plusSeconds(1))
 
         assertFalse(criadaNoBcb)
         assertTrue(chave.criadaNoBcb)
